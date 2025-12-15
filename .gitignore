@@ -1,0 +1,22 @@
+# --- Gradle ---
+.gradle/
+**/build/
+
+# --- Logs ---
+*.log
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- IntelliJ IDEA ---
+.idea/
+*.iml
+out/
+
+# --- VS Code ---
+.vscode/
+
+# --- Env / secrets ---
+.env
+*.local
