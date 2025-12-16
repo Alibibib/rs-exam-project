@@ -27,4 +27,10 @@ spring:
           predicates:
             - Path=/login,/register
           filters:
-            - RewritePath=/(?<segment>.*),/auth/${segment}
+            - RewritePath=/(?<segment>.*), /auth/${segment}
+        - id: files
+          uri: http://file-service:8084
+          predicates:
+            - Path=/api/files/**
+          filters:
+            - StripPrefix=2
