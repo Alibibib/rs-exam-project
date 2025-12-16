@@ -14,6 +14,7 @@ services:
 
 networks:
   appnet:
+    external: true
     name: appnet
 
 volumes:
