@@ -1,0 +1,36 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: auth-service
+
+keycloak:
+  base-url: ${KEYCLOAK_BASE_URL:http://keycloak:8080}
+  realm: ${KEYCLOAK_REALM:rs-exam-project}
+  client-id: ${KEYCLOAK_CLIENT_ID:exam-client}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:exam-secret}
+  admin:
+    username: ${KEYCLOAK_ADMIN_USERNAME:admin}
+    password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
+
+
+
+
+
+
+
+#spring.application.name=AuthService
+#
+#server.port=8000
+#
+#spring.security.oauth2.resourceserver.jwt.issuer-uri=${keycloak.url}/realms/${keycloak.realm}
+#
+#keycloak.url=localhost:8080/auth
+#keycloak.realm=rs-exam-project
+#
+#keycloak.client-id=auth-service-client
+#keycloak.client-secret=CQdfWPfThJwQ6NY6q2u1sTCU8WDUPgdr
+#keycloak.username=admin123
+#keycloak.password=admin123
+#keycloak.grant-type=password
