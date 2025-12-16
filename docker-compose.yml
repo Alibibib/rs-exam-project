@@ -19,7 +19,7 @@ services:
       KEYCLOAK_BASE_URL: http://keycloak:8080
       KEYCLOAK_REALM: rs-exam-project
       KEYCLOAK_CLIENT_ID: exam-client
-      KEYCLOAK_CLIENT_SECRET: EXaY421MSh4qC1z0pag1upXumwAvXh2t
+      KEYCLOAK_CLIENT_SECRET: tczM23DtfZvLH2Tt0QwSpZCriSKtS1SX
       KEYCLOAK_ADMIN_USERNAME: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
     networks: ["appnet"]
@@ -37,6 +37,7 @@ services:
     volumes:
       - postgres_app_data:/var/lib/postgresql/data
     networks:
+      - appnet
       - backend
 
   postgres-keycloak:
@@ -90,6 +91,7 @@ services:
     volumes:
       - minio_data:/data
     networks:
+      - appnet
       - backend
 
   # Optional: auto-create bucket (удобно для file-service)
