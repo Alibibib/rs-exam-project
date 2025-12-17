@@ -150,7 +150,7 @@ services:
       - backend
 
   file-service:
-    build: ./FileService
+    build: ./file-service/file-service
     ports:
       - "8084:8084"
     environment:
