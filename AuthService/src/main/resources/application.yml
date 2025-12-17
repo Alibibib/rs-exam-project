@@ -4,6 +4,13 @@ server:
 spring:
   application:
     name: auth-service
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
+login-session:
+  ttl-seconds: ${LOGIN_SESSION_TTL_SECONDS:300}
 
 keycloak:
   base-url: ${KEYCLOAK_BASE_URL:http://keycloak:8080}
@@ -13,6 +20,7 @@ keycloak:
   admin:
     username: ${KEYCLOAK_ADMIN_USERNAME:admin}
     password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
+
 
 
 

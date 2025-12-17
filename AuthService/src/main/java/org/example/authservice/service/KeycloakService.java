@@ -24,6 +24,7 @@ public class KeycloakService {
     private final String clientSecret;
     private final String adminUsername;
     private final String adminPassword;
+    private final LoginSessionService loginSessionService;
 
     public KeycloakService(
             WebClient.Builder builder,
@@ -32,7 +33,8 @@ public class KeycloakService {
             @Value("${keycloak.client-id}") String clientId,
             @Value("${keycloak.client-secret}") String clientSecret,
             @Value("${keycloak.admin.username}") String adminUsername,
-            @Value("${keycloak.admin.password}") String adminPassword
+            @Value("${keycloak.admin.password}") String adminPassword,
+            LoginSessionService loginSessionService
     ) {
         this.webClient = builder.baseUrl(baseUrl).build();
         this.realm = realm;
@@ -40,6 +42,7 @@ public class KeycloakService {
         this.clientSecret = clientSecret;
         this.adminUsername = adminUsername;
         this.adminPassword = adminPassword;
+        this.loginSessionService = loginSessionService;
     }
 
     public Mono<Void> register(RegisterRequest request) {
@@ -66,7 +69,11 @@ public class KeycloakService {
                         (String) body.get("refresh_token"),
                         (String) body.get("token_type"),
                         ((Number) body.getOrDefault("expires_in", 0)).longValue()
-                ));
+                ))
+                .doOnNext(resp -> {
+                    String sub = org.example.authservice.util.JwtPayload.getSub(resp.accessToken());
+                    loginSessionService.createSession(sub);
+                });
     }
 
     private Mono<String> getAdminToken() {
@@ -107,6 +114,8 @@ public class KeycloakService {
                     return response.createException().flatMap(Mono::error);
                 });
     }
+
+
 
     private String defaultIfBlank(String value, String fallback) {
         return StringUtils.hasText(value) ? value : fallback;

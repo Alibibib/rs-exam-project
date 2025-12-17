@@ -3,13 +3,20 @@ services:
     build: ./api-gateway/api-gateway
     ports:
       - 8080:8080
-    networks: ["appnet"]
+    environment:
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    networks:
+      - appnet
+      - backend
 
   demo-service:
     build: ./DemoService
     ports:
       - 8082:8082
-    networks: ["appnet"]
+    networks:
+      - appnet
+      - backend
 
   auth-service:
     build: ./AuthService
@@ -22,7 +29,13 @@ services:
       KEYCLOAK_CLIENT_SECRET: tczM23DtfZvLH2Tt0QwSpZCriSKtS1SX
       KEYCLOAK_ADMIN_USERNAME: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-    networks: ["appnet"]
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      LOGIN_SESSION_TTL_SECONDS: 300
+
+    networks:
+      - appnet
+      - backend
 
 
   # ---------- Databases ----------
@@ -135,6 +148,29 @@ services:
       - "3000:3000"
     networks:
       - backend
+
+  file-service:
+    build: ./FileService
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-app:5432/appdb
+      SPRING_DATASOURCE_USERNAME: appuser
+      SPRING_DATASOURCE_PASSWORD: apppass
+
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+
+      MINIO_URL: http://minio:9000
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio12345
+      MINIO_BUCKET: files
+
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/rs-exam-project
+    networks:
+      - appnet
+      - backend
+
 
 networks:
   backend:
