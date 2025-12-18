@@ -6,6 +6,9 @@ services:
     environment:
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/rs-exam-project
+    depends_on:
+      - keycloak
     networks:
       - appnet
       - backend
@@ -26,7 +29,7 @@ services:
       KEYCLOAK_BASE_URL: http://keycloak:8080
       KEYCLOAK_REALM: rs-exam-project
       KEYCLOAK_CLIENT_ID: exam-client
-      KEYCLOAK_CLIENT_SECRET: QPSJcg3ufIg1WQ3N91pij1Q5ibmOzUXf
+      KEYCLOAK_CLIENT_SECRET: qqqkKQ2r6be7poh0wTb5T5rpxT0rvFex
       KEYCLOAK_ADMIN_USERNAME: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       SPRING_DATA_REDIS_HOST: redis
@@ -161,17 +164,22 @@ services:
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
 
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: rabbit
+      SPRING_RABBITMQ_PASSWORD: rabbitpass
+
       MINIO_URL: http://minio:9000
       MINIO_ACCESS_KEY: minio
       MINIO_SECRET_KEY: minio12345
       MINIO_BUCKET: files
 
       KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/rs-exam-project
-
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: rabbit
-      RABBITMQ_PASSWORD: rabbitpass
+    depends_on:
+      - rabbitmq
+      - minio
+      - postgres-app
+      - redis
     networks:
       - appnet
       - backend
@@ -181,20 +189,49 @@ services:
     ports:
       - "8085:8085"
     environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-app:5432/appdb
+      SPRING_DATASOURCE_USERNAME: appuser
+      SPRING_DATASOURCE_PASSWORD: apppass
+
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: rabbit
+      SPRING_RABBITMQ_PASSWORD: rabbitpass
+
       MINIO_URL: http://minio:9000
       MINIO_ACCESS_KEY: minio
       MINIO_SECRET_KEY: minio12345
       MINIO_BUCKET: files
-
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: rabbit
-      RABBITMQ_PASSWORD: rabbitpass
-    networks:
-      - backend
     depends_on:
       - rabbitmq
       - minio
+      - postgres-app
+    networks:
+      - appnet
+      - backend
+
+  # ---------- Keycloak ----------
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0
+    command:
+      - start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres-keycloak:5432/keycloak
+      KC_DB_USERNAME: kcuser
+      KC_DB_PASSWORD: kcpass
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres-keycloak
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    networks:
+      - appnet
+      - backend
+
 
 networks:
   backend:
@@ -210,3 +247,4 @@ volumes:
   minio_data:
   prometheus_data:
   grafana_data:
+  keycloak_data:

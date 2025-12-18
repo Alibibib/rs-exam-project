@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        # Auth Service routes
+        - id: auth-service
+          uri: http://auth-service:8083
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=1
+
+        # Demo Service routes
+        - id: demo-service
+          uri: http://demo-service:8082
+          predicates:
+            - Path=/api/demo/**
+          filters:
+            - StripPrefix=1
+
+        # File Service routes
+        - id: file-service
+          uri: http://file-service:8084
+          predicates:
+            - Path=/api/files/**,/api/books/**
+          filters:
+            - StripPrefix=1
+
+        # Processing Service routes
+        - id: processing-service
+          uri: http://processing-service:8085
+          predicates:
+            - Path=/api/processing/**
+          filters:
+            - StripPrefix=1
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://keycloak:8080/realms/rs-exam-project}
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+

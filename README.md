@@ -7,8 +7,7 @@ Monorepo с несколькими микросервисами (Spring Boot 3.2
 - `api-gateway/` — Spring Cloud Gateway + resource server (порт 8080).
 - `DemoService/` — демо ресурсный сервис с публичным/приватным эндпоинтом (порт 8082).
 - `AuthService/` — прокси к Keycloak для регистрации/логина (порт 8083).
-- `file-service/` — сервис для работы с файлами через MinIO (порт 8084).
-- `processing-service/` — сервис для асинхронной обработки файлов через RabbitMQ (порт 8085).
+- Доп. заготовки: `file-service/`, `processing-service/` (пустые болванки).
 
 ## Быстрый старт (Docker)
 1) Однажды создать сеть:
@@ -24,9 +23,6 @@ Monorepo с несколькими микросервисами (Spring Boot 3.2
 3) Запустить сервисы:
    ```bash
    cd ..
-   # Если код изменился или образы еще не собраны:
-   docker compose up -d --build
-   # Или если образы уже собраны:
    docker compose up -d
    ```
 4) Получить токен (через AuthService):
@@ -63,22 +59,11 @@ Monorepo с несколькими микросервисами (Spring Boot 3.2
 ### Gateway-прокси (`http://localhost:8080`)
 - `/api/auth/**` → AuthService (фильтр `StripPrefix=1`)
 - `/api/demo/**` → DemoService (фильтр `StripPrefix=2`)
-- `/api/files/**` → FileService (фильтр `StripPrefix=2`)
-- `/api/processing/**` → ProcessingService (фильтр `StripPrefix=2`)
 - `/login`, `/register` → проксируются в `/auth/<...>` на AuthService
 
 ### DemoService (за gateway)
 - `GET /api/demo/public` — без авторизации
 - `GET /api/demo/private` — требует Bearer JWT, возвращает строку с `sub/username/email`
-
-### FileService (за gateway)
-- `POST /api/files/files/upload` — загрузка файла в MinIO (требует Bearer JWT)
-- `GET /api/files/files/download/{fileName}` — скачивание файла из MinIO (требует Bearer JWT)
-- `DELETE /api/files/files/{fileName}` — удаление файла из MinIO (требует Bearer JWT)
-- `GET /api/files/files/exists/{fileName}` — проверка существования файла (требует Bearer JWT)
-
-### ProcessingService
-- Слушает очередь RabbitMQ `file.processing` и обрабатывает задачи асинхронно
 
 ## Как добавить новый микросервис
 1) Подключить к сети `appnet` в Docker-compose.

@@ -62,17 +62,26 @@ public class KeycloakService {
                         .with("client_secret", clientSecret)
                         .with("username", request.username())
                         .with("password", request.password()))
-                .retrieve()
-                .bodyToMono(Map.class)
-                .map(body -> new LoginResponse(
-                        (String) body.get("access_token"),
-                        (String) body.get("refresh_token"),
-                        (String) body.get("token_type"),
-                        ((Number) body.getOrDefault("expires_in", 0)).longValue()
-                ))
-                .doOnNext(resp -> {
-                    String sub = org.example.authservice.util.JwtPayload.getSub(resp.accessToken());
-                    loginSessionService.createSession(sub);
+                .exchangeToMono(response -> {
+                    if (response.statusCode().is2xxSuccessful()) {
+                        return response.bodyToMono(Map.class)
+                                .map(body -> new LoginResponse(
+                                        (String) body.get("access_token"),
+                                        (String) body.get("refresh_token"),
+                                        (String) body.get("token_type"),
+                                        ((Number) body.getOrDefault("expires_in", 0)).longValue()
+                                ))
+                                .doOnNext(resp -> {
+                                    String sub = org.example.authservice.util.JwtPayload.getSub(resp.accessToken());
+                                    loginSessionService.createSession(sub);
+                                });
+                    } else {
+                        return response.bodyToMono(String.class)
+                                .flatMap(errorBody -> {
+                                    return Mono.error(new RuntimeException(
+                                            "Keycloak login failed: " + response.statusCode() + " - " + errorBody));
+                                });
+                    }
                 });
     }
 
