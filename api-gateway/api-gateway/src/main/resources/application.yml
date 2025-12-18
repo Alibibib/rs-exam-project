@@ -33,4 +33,23 @@ spring:
           predicates:
             - Path=/api/files/**
           filters:
-            - StripPrefix=2
+            - StripPrefix=1
+        - id: books
+          uri: http://file-service:8084
+          predicates:
+            - Path=/api/books/**
+          filters:
+            - StripPrefix=1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
