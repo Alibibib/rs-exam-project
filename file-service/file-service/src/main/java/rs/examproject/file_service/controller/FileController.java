@@ -23,17 +23,22 @@ public class FileController {
         this.fileService = fileService;
     }
 
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadFile(
-            @RequestParam("file") MultipartFile file,
+            @RequestPart("file") MultipartFile file,
             @AuthenticationPrincipal Jwt jwt) {
-        if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("File is empty");
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().body("File is empty or missing");
         }
         
-        String userId = jwt != null ? jwt.getSubject() : "anonymous";
-        String fileName = fileService.uploadFile(file, userId);
-        return ResponseEntity.ok("File uploaded successfully: " + fileName);
+        try {
+            String userId = jwt != null ? jwt.getSubject() : "anonymous";
+            String fileName = fileService.uploadFile(file, userId);
+            return ResponseEntity.ok("File uploaded successfully: " + fileName);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error uploading file: " + e.getMessage());
+        }
     }
 
     @GetMapping("/download/{fileName}")

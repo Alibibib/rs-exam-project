@@ -30,6 +30,9 @@ spring:
             - Path=/api/files/**,/api/books/**
           filters:
             - StripPrefix=1
+          metadata:
+            connect-timeout: 20000
+            response-timeout: 60s
 
         # Processing Service routes
         - id: processing-service
@@ -49,4 +52,12 @@ spring:
     redis:
       host: ${SPRING_DATA_REDIS_HOST:localhost}
       port: ${SPRING_DATA_REDIS_PORT:6379}
+  
+  codec:
+    max-in-memory-size: 10MB
+    max-in-memory-buffer-size: 10MB
+
+server:
+  max-http-header-size: 16KB
+  max-http-form-post-size: 10MB
 

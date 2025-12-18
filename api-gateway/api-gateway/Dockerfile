@@ -1,4 +1,4 @@
-FROM gradle:8.6-jdk17 AS build
+FROM gradle:8.8-jdk17 AS build
 WORKDIR /app
 
 COPY build.gradle settings.gradle ./
