@@ -26,7 +26,7 @@ services:
       KEYCLOAK_BASE_URL: http://keycloak:8080
       KEYCLOAK_REALM: rs-exam-project
       KEYCLOAK_CLIENT_ID: exam-client
-      KEYCLOAK_CLIENT_SECRET: tczM23DtfZvLH2Tt0QwSpZCriSKtS1SX
+      KEYCLOAK_CLIENT_SECRET: QPSJcg3ufIg1WQ3N91pij1Q5ibmOzUXf
       KEYCLOAK_ADMIN_USERNAME: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       SPRING_DATA_REDIS_HOST: redis
@@ -167,10 +167,34 @@ services:
       MINIO_BUCKET: files
 
       KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/rs-exam-project
+
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: rabbit
+      RABBITMQ_PASSWORD: rabbitpass
     networks:
       - appnet
       - backend
 
+  processing-service:
+    build: ./processing-service/processing-service
+    ports:
+      - "8085:8085"
+    environment:
+      MINIO_URL: http://minio:9000
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio12345
+      MINIO_BUCKET: files
+
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: rabbit
+      RABBITMQ_PASSWORD: rabbitpass
+    networks:
+      - backend
+    depends_on:
+      - rabbitmq
+      - minio
 
 networks:
   backend:
