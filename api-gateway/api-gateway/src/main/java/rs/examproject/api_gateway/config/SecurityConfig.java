@@ -14,9 +14,10 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(ex -> ex
+                        .pathMatchers("/actuator/health", "/actuator/info", "/actuator/prometheus").permitAll()
+                        .pathMatchers("/api/auth/**", "/login", "/register").permitAll()
                         .pathMatchers("/api/demo/public").permitAll()
-                        .pathMatchers("/api/demo/**").authenticated()
-                        .anyExchange().permitAll()
+                        .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .build();

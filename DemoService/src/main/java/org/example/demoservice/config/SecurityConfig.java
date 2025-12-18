@@ -13,6 +13,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/health", "/actuator/info", "/actuator/prometheus").permitAll()
                         .requestMatchers("/public").permitAll()
                         .requestMatchers("/private").authenticated()
                         .anyRequest().denyAll()
@@ -22,4 +23,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-
